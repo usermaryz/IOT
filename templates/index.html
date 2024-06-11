@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Fridge Inventory</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        #fridge {
+            margin-top: 20px;
+        }
+        .product {
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Fridge Inventory</h1>
+    <div id="fridge">
+        <p>No products in the fridge.</p>
+    </div>
+
+    <script type="text/javascript">
+        var socket = io('http://localhost:5000'); // Убедитесь, что порт совпадает с вашим сервером Flask-SocketIO
+
+        socket.on('connect', function() {
+            console.log('Connected to server');
+        });
+
+        socket.on('update_fridge', function(data) {
+            console.log('Received data:', data);
+            var fridgeDiv = document.getElementById('fridge');
+            fridgeDiv.innerHTML = '';
+
+            if (Object.keys(data.fridge).length === 0) {
+                fridgeDiv.innerHTML = '<p>No products in the fridge.</p>';
+            } else {
+                for (var product in data.fridge) {
+                    var quantity = data.fridge[product];
+                    var productDiv = document.createElement('div');
+                    productDiv.className = 'product';
+                    productDiv.innerHTML = '<strong>' + product + '</strong>: ' + quantity;
+                    fridgeDiv.appendChild(productDiv);
+                }
+            }
+        });
+
+        socket.on('disconnect', function() {
+            console.log('Disconnected from server');
+        });
+    </script>
+</body>
+</html>
